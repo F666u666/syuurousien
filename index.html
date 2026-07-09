@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>就労支援SNS運用 設計書【完全版】</title>
+<style>
+  :root{
+    --bg:#ffffff; --surface:#f6f5f1; --ink:#1f1e1c; --muted:#6b6a64; --hint:#9a988f;
+    --line:#e5e3dc; --blue:#185fa5; --blueBg:#e6f1fb; --coral:#993c1d; --coralBg:#faece7;
+    --amber:#854f0b; --amberBg:#faeeda; --purple:#534ab7; --purpleBg:#eeedfe;
+    --green:#3b6d11; --greenBg:#eaf3de; --teal:#0f6e56; --tealBg:#e1f5ee; --red:#a32d2d; --redBg:#fcebeb;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:#eceae3; color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
+    line-height:1.75; -webkit-font-smoothing:antialiased;}
+  .page{max-width:840px; margin:32px auto; background:var(--bg); padding:52px 60px; border-radius:14px; box-shadow:0 1px 3px rgba(0,0,0,.06);}
+  .eyebrow{font-size:12px; letter-spacing:.12em; color:var(--hint); margin:0 0 6px;}
+  h1{font-size:30px; font-weight:600; margin:0 0 8px; letter-spacing:.01em;}
+  .sub{font-size:14px; color:var(--muted); margin:0 0 4px;}
+  .divider{border:0; border-top:1px solid var(--line); margin:30px 0;}
+  h2{font-size:20px; font-weight:600; margin:40px 0 14px; padding-top:8px; display:flex; align-items:baseline; gap:10px;}
+  h2 .n{color:var(--hint); font-weight:400; font-size:16px;}
+  h3{font-size:14.5px; font-weight:600; margin:18px 0 8px;}
+  p{margin:0 0 12px; font-size:14.5px;}
+  ul{margin:0 0 12px; padding-left:22px;} li{font-size:14.5px; margin-bottom:6px;}
+  .lead{font-size:15px;}
+  .tag{display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:6px; white-space:nowrap;}
+  .t-blue{background:var(--blueBg); color:var(--blue);} .t-coral{background:var(--coralBg); color:var(--coral);}
+  .t-amber{background:var(--amberBg); color:var(--amber);} .t-purple{background:var(--purpleBg); color:var(--purple);}
+  .t-green{background:var(--greenBg); color:var(--green);} .t-teal{background:var(--tealBg); color:var(--teal);}
+  .t-red{background:var(--redBg); color:var(--red);} .t-gray{background:var(--surface); color:var(--muted);}
+  .card{background:var(--surface); border-radius:10px; padding:16px 20px; margin:0 0 12px;}
+  .row{display:flex; gap:10px; align-items:flex-start; margin-bottom:8px;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .grid3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;}
+  .mini{font-size:12.5px; color:var(--muted);}
+  .accent{color:var(--blue); font-weight:600;}
+  .toc{background:var(--surface); border-radius:10px; padding:18px 24px;}
+  .toc ol{margin:0; padding-left:20px; columns:2; column-gap:32px;}
+  .toc li{font-size:13px; margin-bottom:5px;}
+  .ep-phase{display:flex; align-items:center; gap:8px; margin:18px 0 9px;}
+  .ep-phase .name{font-size:13.5px; color:var(--muted);}
+  ol.eps{margin:0; padding-left:26px;} ol.eps li{margin-bottom:8px;}
+  ol.eps .title{font-weight:600;} ol.eps .desc{color:var(--muted); font-size:13px;}
+  table{width:100%; border-collapse:collapse; font-size:13px; margin:0 0 14px;}
+  th,td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{color:var(--muted); font-weight:600; font-size:12px;}
+  .stage{border:1px solid var(--line); border-radius:10px; padding:13px 16px; margin-bottom:9px;}
+  .stage .head{display:flex; align-items:center; gap:9px; margin-bottom:6px;}
+  .stage .num{width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600;}
+  .stage .ttl{font-weight:600; font-size:14.5px;}
+  .quote{border-left:3px solid var(--blue); padding:4px 0 4px 14px; font-style:italic; margin:0 0 12px; color:var(--ink);}
+  .note{background:var(--amberBg); color:var(--amber); border-radius:8px; padding:11px 14px; font-size:12.5px; margin:12px 0;}
+  @media print{ body{background:#fff;} .page{box-shadow:none; margin:0; border-radius:0; max-width:none;} h2{break-after:avoid;} .stage,ol.eps li{break-inside:avoid;} }
+  @media(max-width:680px){ .page{padding:30px 22px;} .grid2,.grid3{grid-template-columns:1fr;} .toc ol{columns:1;} }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <p class="eyebrow">PROPOSAL ／ 完全版</p>
+  <h1>就労支援SNS運用 設計書</h1>
+  <p class="sub">Instagram ＋ Threads ／ 全国オンライン対応 ／ オーガニック運用 ／ 顔出しなし</p>
+
+  <hr class="divider">
+
+  <div class="toc">
+    <h3 style="margin-top:0;">目次</h3>
+    <ol>
+      <li>概要</li>
+      <li>目的・ゴール</li>
+      <li>ターゲット</li>
+      <li>ペルソナ（主役）</li>
+      <li>悩み（6層）</li>
+      <li>物語の設計：応援される4原理</li>
+      <li>回復ロードマップ（社会復帰の7段階）</li>
+      <li>コンテンツ戦略（二段ロケット）</li>
+      <li>連載 企画一覧（全39本）</li>
+      <li>撮影・表現（顔出しなしの作り方）</li>
+      <li>投稿フォーマット＆頻度</li>
+      <li>集客動線（ゴール＝面談）</li>
+      <li>KPI・スケジュール</li>
+      <li>法務・リスク管理</li>
+      <li>美術・ロケ設定（部屋の作り込み）</li>
+      <li>付録：1話サンプル台本</li>
+      <li>投稿テーマ・バンク（単発 約110本）</li>
+    </ol>
+  </div>
+
+  <h2><span class="n">1.</span> 概要</h2>
+  <p class="lead">就労移行IT支援の強み（ITスクール × メンタルケア × 診断 × 転職の一気通貫）を、<strong>「ある女性が社会復帰するまでの記録」というドキュメンタリー連載（プロセスエコノミー）</strong>で可視化する。完成された専門家ではなく“もがいて前に進む当事者”を見せることで共感を生み、潜在層を集めて無料面談まで運ぶ。主役は実在の本人・顔出しなし。診断軸は<strong>「適応障害 ×（根っこの）ADHD」の二段構造</strong>。売りは<strong>「人間関係で疲れた人が、“人と関わらず在宅で働ける”ようになる」</strong>こと。媒体はInstagram＋Threads、全国オンライン対応、オーガニック運用。最重要KPIは面談予約数。</p>
+
+  <h2><span class="n">2.</span> 目的・ゴール</h2>
+  <ul>
+    <li><strong>最終ゴール：無料面談の予約獲得</strong></li>
+    <li>SNSの役割：「自分、もしかして…」で止まっている人を、面談の一歩目まで運ぶ</li>
+    <li>フォロワー数は手段。煽れない領域なので“数”を追わず、<strong>保存率・プロフィール遷移・面談数</strong>を追う</li>
+  </ul>
+
+  <h2><span class="n">3.</span> ターゲット</h2>
+  <p><strong>主軸セグメント：</strong>25〜40歳（コア27前後）。うつ・適応障害を起点に「働きたいのに働けない自分」を責める層。<strong>根っこにADHD（発達）</strong>があり二次障害でうつ・適応障害を発症した型、HSP・「生きづらさ」自認、在宅志向・ネット好き（IT親和性が高い）も重なる。</p>
+  <h3>見ている人＝3タイプ</h3>
+  <div class="row"><span class="tag t-blue">A 潜在</span><span>本人予備軍。未受診。「これ、今の私だ」。最大数・遠い → 物語で集めて時間をかけて育てる</span></div>
+  <div class="row"><span class="tag t-coral">B 渦中</span><span>診断済み・休職/離職中。あかりと同じ地点。最も面談に近い <strong>＝刈り取りの主軸</strong></span></div>
+  <div class="row"><span class="tag t-gray">C 家族</span><span>「うちの子／夫がこれかも」。保存して本人に見せる・拡散の裏方</span></div>
+  <p class="mini" style="margin-top:8px;">数を作るのはA、面談に変えるのはB、拡散の裏方がC。／ <strong>やらない：</strong>統合失調症（自分から検索して動く層でない）・知的・身体（IT×メンタルの強みと噛み合わない）。</p>
+
+  <h2><span class="n">4.</span> ペルソナ（主役）</h2>
+  <div class="card">
+    <p style="font-weight:600; margin-bottom:8px; font-size:15px;">あかり・27歳・女性／地方都市で一人暮らし</p>
+    <p style="margin-bottom:8px;"><strong>診断（二段構造）：</strong>「適応障害（うつ状態）」、そして根っこに「ADHD」。</p>
+    <p class="mini" style="margin:0 0 10px; background:var(--surface); padding:8px 12px; border-radius:8px;">ADHD（根っこ・生まれつき）→ 特性を気合いで我慢し続ける → 適応障害（きっかけ＝仕事・環境）→ うつ状態（沈みが長引く＝二次障害）</p>
+    <p style="margin-bottom:10px;"><strong>潰れた経緯：</strong>子どもの頃から“何かおかしい”。ケアレスミス・要領の悪さ・忘れ物で「やる気ある?」と言われ続けた（＝ADHD特性）。気合いでカバーして無理を続け、約2年で限界 → ある朝、体が動かなくなり受診 → <strong>“適応障害、そしてADHD”と判明</strong> → 休職、そして退職。<strong>離職の決め手は「人間関係・電話恐怖」</strong>（雑談が苦痛／電話が鳴るだけで動悸）。</p>
+    <p style="margin-bottom:10px;"><strong>現在地：</strong>回復期。貯金を切り崩しながら、就労移行のITスクールに通い始めたばかり（プログラミング未経験）。ADHDの<strong>過集中</strong>がプログラミングで才能として開花していく＝物語後半の希望。</p>
+    <table style="margin-bottom:6px;">
+      <tr><td style="width:130px; color:var(--muted);">1日（今）</td><td>7:00 起きるのに1時間／13:00 通所（不安だけど少し楽しい）／18:00 小さな達成感、でも夕方から不安／23:00 布団でスマホ、スクロールが止まらない</td></tr>
+      <tr><td style="color:var(--muted);">夜中の検索語</td><td>「適応障害 復職 こわい」「働くの 向いてない」「在宅 仕事 人と話さない」「HSP 仕事 続かない」「25歳 急に 生きづらい」</td></tr>
+      <tr><td style="color:var(--muted);">動けない壁</td><td>お金の不安／また潰れる恐怖／“障害者枠”への抵抗／周りの目／電話・対人への恐怖</td></tr>
+      <tr><td style="color:var(--muted);">家計のリアル</td><td>休職中は傷病手当金＝給料の約2/3、退職後は貯金切り崩し。過去の衝動買いでリボ残高あり。それでも“推し活”にだけはお金を使う（唯一の生きる支え）</td></tr>
+      <tr><td style="color:var(--muted);">接触</td><td>夜のInstagram・Threads（23〜25時がピーク）</td></tr>
+    </table>
+    <p style="margin:8px 0 0;"><span class="mini">表面の欲求：</span>「もう一度働けるようになりたい」<br><span class="accent">本当の欲求：</span><strong>「“ちゃんとした自分”に戻って、自分を許したい。もう一度、安心して眠りたい」</strong>（物語が刺すのはこちら。就職はゴールでなく、自分を許すための手段）</p>
+  </div>
+  <p class="mini">※主役は実在の本人。顔出しなし（後ろ姿・手元・声・テロップで構成）。潰れた原因・生活状況は本人の事実に合わせて調整。</p>
+
+  <h2><span class="n">5.</span> 悩み（精神科／メンタルケア視点・6層）</h2>
+  <p class="mini" style="margin-bottom:8px;">表面の「働けない」だけでは薄い。当事者の悩みは6層で積み重なる。連載で①〜⑥を体験させ、単発で①〜⑥をピンポイントに解く。</p>
+  <ul>
+    <li><strong>① 症状</strong> — 朝起きられない・頭が回らない・集中できない・眠れない・何も楽しくない（怠けでなく症状）</li>
+    <li><strong>② 認知の歪み</strong> — 白黒思考／べき思考／過度の一般化／自己関連づけ。<em>自分を責める“クセ”自体が病気の症状</em></li>
+    <li><strong>③ 自己肯定感の崩壊</strong> — 「働けない自分に価値がない」「迷惑な存在」。元できる子ほど落差で深く苦しむ</li>
+    <li><strong>④ 対人・孤立（二次被害）</strong> — 打ち明けられない／理解されない孤独／「甘え」と言われる傷／家族との軋轢</li>
+    <li><strong class="accent">⑤ 回復過程“特有”の悩み（差別化の肝）</strong> — 回復期の波／「治りかけが一番しんどい」／焦り／休む罪悪感</li>
+    <li><strong>⑥ 将来・社会復帰</strong> — また潰れる恐怖／ブランク／障害者雇用への偏見／お金／カミングアウト不安</li>
+  </ul>
+
+  <h2><span class="n">6.</span> 物語の設計：応援される4原理</h2>
+  <p class="mini" style="margin-bottom:10px;">プロセスエコノミーの核。「過程」を見せるだけでは伸びない。人を動かすのはこの4つ。</p>
+  <div class="grid2">
+    <div class="card" style="margin:0;"><p style="font-weight:600; margin:0 0 4px;">① 完璧な人は応援されない</p><p class="mini" style="margin:0;">もがく人が応援される。だから過程を“途中から全部”見せる。結果だけ見せると他人事になる</p></div>
+    <div class="card" style="margin:0;"><p style="font-weight:600; margin:0 0 4px;">② 小さな勝利を実況する</p><p class="mini" style="margin:0;">「朝起きられた」「散歩できた」。健康な人には何でもない一歩が、当事者には大事件</p></div>
+    <div class="card" style="margin:0;"><p style="font-weight:600; margin:0 0 4px;">③ 波（後退）を隠さない</p><p class="mini" style="margin:0;">回復期は医学的に“揺れる”。正直に見せると信頼される。右肩上がりの嘘はバレて冷める</p></div>
+    <div class="card" style="margin:0;"><p style="font-weight:600; margin:0 0 4px;">④ 助けられる側 → 助ける側へ</p><p class="mini" style="margin:0;">後半で支える側に回った瞬間、フォロワーが“ファン”から“当事者コミュニティ”に変わる</p></div>
+  </div>
+  <div class="note"><strong>「うつは甘え」への向き合い方：</strong>怒って反論しない。「うつは意志や甘えじゃなく、脳のエネルギー切れ。気合いで治らないから治療がある」と“事実で静かに返す”。敵を作らず、当事者を全員味方にする。</div>
+
+  <h2><span class="n">7.</span> 回復ロードマップ（社会復帰の7段階）</h2>
+  <div class="note" style="background:var(--blueBg); color:var(--blue);"><strong>これは「物語（ドキュメンタリー）」であり、実際に1年かけて運用するものではない。</strong>1投稿ごとに“少しだけ前進する様子”と“その時の葛藤”を描いて、物語として進めていく。下の臨床経過は、各話のリアリティを支える背景設定として参照する（実際の制作スケジュールは13章を参照）。</div>
+  <p class="mini" style="margin-bottom:10px;">精神科の標準的な回復過程（急性期→回復期→再発予防）と就労移行の流れに沿う。回復は直線ではなく、行きつ戻りつする。連載の7フェーズと一致。</p>
+  <table>
+    <tr><th>段階</th><th>臨床メモ（物語の背景）</th><th>経過感の目安</th><th>投稿の狙い・応援スイッチ</th></tr>
+    <tr><td><strong>① 潜在・気づき</strong></td><td>受診前。不調の自覚</td><td>—</td><td>「実は〇〇でした」で共感（同じだ）</td></tr>
+    <tr><td><strong>② 診断</strong></td><td>名前がつく転機</td><td>—</td><td>弱さの開示で信頼が生まれる</td></tr>
+    <tr><td><strong>③ 休養・急性期</strong></td><td>休養と服薬が最優先</td><td>物語上 約1〜3ヶ月</td><td>「休むのも治療」罪悪感の解放</td></tr>
+    <tr><td><strong>④ 回復期</strong></td><td>意欲が戻るが“波”が激しい</td><td>物語上 約4〜6ヶ月</td><td>小さな勝利＋隠さない後退</td></tr>
+    <tr><td><strong>⑤ 自己理解</strong></td><td>原因の言語化・障害受容</td><td>物語上 回復期〜</td><td>“参考になる”＝保存される</td></tr>
+    <tr><td><strong>⑥ 就労移行・IT</strong></td><td>スキル習得・模擬就労</td><td>物語上 数ヶ月</td><td>変化の可視化（最も伸びる）</td></tr>
+    <tr><td><strong>⑦ 就職・社会復帰</strong></td><td>就職＋定着・再発予防</td><td>物語上 終盤</td><td>大団円＋他者貢献でコミュニティ化</td></tr>
+  </table>
+  <p class="mini"><strong>1投稿の作り方：</strong>各話は「前回からの小さな一歩」＋「その一歩に伴う迷い・葛藤」をワンセットで描く。大きく進めず、少しずつ。これが“見届けたくなる”連載のリズムを作る。</p>
+
+  <h2><span class="n">8.</span> コンテンツ戦略（二段ロケット）</h2>
+  <div class="grid2" style="margin-bottom:14px;">
+    <div class="card" style="background:var(--coralBg); margin:0;"><p style="font-weight:600; margin:0 0 4px; color:var(--coral);">第1ロケット｜あかりの連載</p><p class="mini" style="margin:0;">感情で広く集める</p></div>
+    <div class="card" style="background:var(--blueBg); margin:0;"><p style="font-weight:600; margin:0 0 4px; color:var(--blue);">第2ロケット｜知識・共感の単発</p><p class="mini" style="margin:0;">検索と保存で拾い、IT・在宅層も引く</p></div>
+  </div>
+  <p><strong>コンテンツ5本柱：</strong>①気づき系「〇〇だと思ったら実は〇〇」②正しい知識（やさしい言葉）③不安解消（誤解を壊す）④ストーリー（連載）⑤ハードル下げ</p>
+  <h3>第2ロケットは必ず「ターゲット（誰が）」を主語に入れる</h3>
+  <table>
+    <tr><th>ターゲット（主語）</th><th>テーマ例</th></tr>
+    <tr><td>繊細さん（HSP）</td><td>繊細さんが“気疲れせず”働ける仕事の選び方</td></tr>
+    <tr><td>ADHD気質の人</td><td>ADHDで“マルチタスクが無理”な人に向く、黙々系の仕事</td></tr>
+    <tr><td>うつ・適応障害から戻る人</td><td>うつから復帰する人に“在宅ワーク”をすすめる理由</td></tr>
+    <tr><td>ASD・過集中タイプ</td><td>ASDの“過集中”が、プログラミングで強みになる話</td></tr>
+    <tr><td>障害者雇用に抵抗がある人</td><td>「障害者雇用＝キャリア終了」は誤解、ITスキルがある場合</td></tr>
+    <tr><td>電話・対人が苦手な人</td><td>電話が怖い人でもできる、“文字で完結する”在宅の働き方</td></tr>
+    <tr><td>ADHD当事者（あるある）</td><td>ケアレスミス・忘れ物・「やる気ある?」——ADHD日常あるある（＝バズ・検索の宝庫）</td></tr>
+  </table>
+  <p class="mini"><strong>大原則（リビール型）：</strong>頭3秒は結論・転機から。「実は〇〇でした」。時系列はその後で巻き戻す。律儀に積むとスワイプされる。</p>
+
+  <h2><span class="n">9.</span> 連載 企画一覧（全39本）</h2>
+  <p class="mini" style="margin-bottom:2px;">各話＝そのまま使える“素っ気ないのにテンションの効いた”冒頭フック（落差・ループ・感情・問い・情景のどれかを1個仕込む）。節目（診断・退職・通所初日・内定）は二度撮れないため作り溜め。</p>
+  <p class="mini" style="margin:8px 0 10px; background:var(--blueBg); color:var(--blue); padding:8px 12px; border-radius:8px;"><strong>連載のリズム＝8ビート：</strong>発覚 → 共感 → 回復期1 → 共感 → 回復期2 → 社会復帰手前 → 回復 → 復帰。進む回と“共感（あるある）で刺す回”を交互に挟み、離脱を防ぐ。</p>
+
+  <div class="ep-phase"><span class="tag t-blue">Phase 1</span><span class="name">潜在・気づき（診断前）</span></div>
+  <ol class="eps">
+    <li><span class="title">去年までバリバリ働いてた私が、今、無職です</span></li>
+    <li><span class="title">「頑張れば治る」って、本気で信じてた頃の話</span></li>
+    <li><span class="title">満員電車で、急に涙が止まらなくなった</span></li>
+    <li><span class="title">夜中2時、「涙 理由なく」で検索してる自分がいた</span></li>
+    <li><span class="title">心療内科の予約ボタン、2週間押せなかった</span></li>
+  </ol>
+
+  <div class="ep-phase"><span class="tag t-coral">Phase 2</span><span class="name">診断</span></div>
+  <ol class="eps" start="6">
+    <li><span class="title">精神科の待合室で、私だけ場違いな気がした</span></li>
+    <li><span class="title">「適応障害です」って言われて、正直ちょっとホッとした</span></li>
+    <li><span class="title">「よく我慢したね」のひと言で、涙が止まらなかった</span></li>
+    <li><span class="title">会社に診断書を出した日、手が震えてた</span></li>
+    <li><span class="title">一番わかってほしい人に、「甘えでしょ」って言われた</span></li>
+  </ol>
+
+  <div class="ep-phase"><span class="tag t-coral">Phase 3</span><span class="name">休養・急性期</span></div>
+  <ol class="eps" start="11">
+    <li><span class="title">上司に「辞めます」って電話した日、声が震えてた</span></li>
+    <li><span class="title">退職届を出した瞬間、ホッとして、こわくなった</span></li>
+    <li><span class="title">一日中寝てるだけの自分が、一番きらいだった</span></li>
+    <li><span class="title">薬を飲み始めて変わったこと。正直、こわかったことも</span></li>
+    <li><span class="title">はじめてのカウンセリング。何を話せばいいかも分からなかった</span></li>
+    <li><span class="title">通帳の残高が減っていくのを見るのが、こわい</span></li>
+  </ol>
+
+  <div class="ep-phase"><span class="tag t-amber">Phase 4</span><span class="name">回復期（波）</span></div>
+  <ol class="eps" start="17">
+    <li><span class="title">はじめて外に散歩に出られた日。それだけで泣きそうだった</span></li>
+    <li><span class="title">「朝起きる」を取り戻すのに、私がやった3つのこと</span></li>
+    <li><span class="title">治ったと思った次の日、また動けなくなった</span></li>
+    <li><span class="title">気分を記録し始めたら、自分の波が見えてきた</span></li>
+    <li><span class="title">友達からのLINE、こわくて3日開けなかった</span></li>
+  </ol>
+
+  <div class="ep-phase"><span class="tag t-purple">Phase 5</span><span class="name">自己理解・動き出す</span></div>
+  <ol class="eps" start="22">
+    <li><span class="title">なんで私は壊れたのか。やっと、理由が分かった</span></li>
+    <li><span class="title">「自分の取扱説明書」を作ってみたら、少しラクになった</span></li>
+    <li><span class="title">障害者手帳をとるか、3日間ずっと悩んでた</span></li>
+    <li><span class="title">「会社に行かなくても働ける」って、はじめて知った</span></li>
+  </ol>
+
+  <div class="ep-phase"><span class="tag t-green">Phase 6</span><span class="name">就労移行・スクール（就職に向けて動く）</span></div>
+  <ol class="eps" start="26">
+    <li><span class="title">無職の私が、「就労移行」ってやつを調べ始めた</span></li>
+    <li><span class="title">スクールの見学に行った日、久しぶりに外の空気を吸った</span></li>
+    <li><span class="title">通所初日。緊張で、前の夜ほとんど眠れなかった</span></li>
+    <li><span class="title">未経験の私が、はじめて自分でコードを動かした</span></li>
+    <li><span class="title">「私だけじゃなかった」。同じ境遇の人に、はじめて会えた</span></li>
+    <li><span class="title">支援員さんと、「いつか就職する」目標を立てた</span></li>
+    <li><span class="title">模擬面接、ボロボロだった。それでも笑われなかった</span></li>
+    <li><span class="title">はじめての職場実習。行く前、足がすくんだ</span></li>
+    <li><span class="title">履歴書の「空白期間」、どう書けばいいか分からなかった</span></li>
+  </ol>
+
+  <div class="ep-phase"><span class="tag t-green">Phase 7</span><span class="name">就職・社会復帰</span></div>
+  <ol class="eps" start="35">
+    <li><span class="title">面接で病気のこと、言うか言わないか、ギリギリまで迷った</span></li>
+    <li><span class="title">無職だった私に、内定の電話がきた</span></li>
+    <li><span class="title">働き始めて1週間。「続ける」ために私が決めたこと</span></li>
+    <li><span class="title">もう二度と倒れないために、自分と約束したルール</span></li>
+    <li><span class="title">あの頃の私と同じ場所にいる人に、これだけは言いたい</span></li>
+  </ol>
+
+  <h2><span class="n">10.</span> 撮影・表現（顔出しなしの作り方）</h2>
+  <p>顔出しなしはハンデではなく、<strong>むしろ最強の共感装置</strong>。顔がない＝視聴者が「自分」を重ねられる。声（ナレ）とテロップが主役。</p>
+  <ul>
+    <li><strong>画づくり：</strong>主観カット（本人の目線）／後ろ姿・足元・手元・横顔の一部・シルエット・逆光</li>
+    <li><strong>小物で感情を語る：</strong>冷めたコーヒー・閉じたカーテン・点いたままのPC・鳴り続けるアラーム</li>
+    <li><strong>B-roll＋モノローグ：</strong>電車・空・キーボード＋本音のひとこと</li>
+    <li><strong>節目は二度撮れない：</strong>診断・退職・通所初日・実習・内定は“起きた瞬間”に必ず撮影。作り溜め前提で動く</li>
+  </ul>
+
+  <h2><span class="n">11.</span> 投稿フォーマット＆頻度</h2>
+  <h3>フォーマット</h3>
+  <ul>
+    <li><strong>縦動画（30〜60秒）：</strong>掴み3秒（結論・本音）→ その回の一歩 or つまずき → 本音 → 次回引き → フォロー/保存誘導</li>
+    <li><strong>カルーセル：</strong>表紙（状態の一言）→ 3〜7枚（出来事と心情）→ 小さな一歩 or 問い → 保存/面談誘導</li>
+  </ul>
+  <h3>頻度（媒体で分ける）</h3>
+  <div class="grid2">
+    <div class="card" style="margin:0;"><p style="font-weight:600; margin:0 0 4px;">Instagram（連載・縦動画／外注編集）</p><p class="mini" style="margin:0;"><strong>週1〜2本</strong>。作り込み重視のアンカー</p></div>
+    <div class="card" style="margin:0;"><p style="font-weight:600; margin:0 0 4px;">Threads（ベタ打ち短文／内製）</p><p class="mini" style="margin:0;"><strong>可能なら日次1〜2本</strong>。低コストで共感・拡散、流入の量を稼ぐ</p></div>
+  </div>
+  <p class="mini">役割：Instagram＝ストックと信頼、Threads＝初動と拡散。両方からプロフィール→面談へ。</p>
+
+  <h2><span class="n">12.</span> 集客動線（ゴール＝面談）</h2>
+  <div class="card">
+    <p style="margin:0; font-size:14px; line-height:1.9;">SNS投稿（共感・気づき）<br>　→ プロフィール<br>　　→ LINE登録（餌＝無料の自己診断チェック／小冊子DL）<br>　　　→ <strong>無料面談（電話なし・文字／オンラインでOK）← ゴール</strong><br>　　　　→ 入校 → 社会復帰 → 本人を次の連載へ（永久ループ）</p>
+  </div>
+  <ul>
+    <li><strong>電話はこの層の最大のハードル。だから「話すのが苦手でも大丈夫。まずは文字で」を前面に。</strong>第一接点はLINEチャット、電話は選択制。これが面談CVRを大きく左右する</li>
+    <li><strong>CTAは毎回1つだけ。</strong>ゴールは一貫して「LINE登録 → 面談予約」。「まず話を聞くだけでいい」でハードルを下げる</li>
+    <li>連載＝信頼を作りフォローさせる／知識・チェックリスト＝保存と流入／不安解消＝面談の背中を押す</li>
+    <li>全国オンライン＝「どこに住んでても在宅で学べる」を強みとして毎回効かせる</li>
+  </ul>
+
+  <h2><span class="n">13.</span> KPI・スケジュール</h2>
+  <p><strong>最重要KPI＝面談予約数。</strong>次点：保存率・プロフィール遷移率・LINE登録数。</p>
+  <table>
+    <tr><th>時期</th><th>やること</th><th>目安</th></tr>
+    <tr><td><strong>Week 0</strong></td><td>主役確定＋同意書／アカウント開設／撮影スタート</td><td>—</td></tr>
+    <tr><td><strong>Month 1</strong></td><td>連載1〜3話＋単発で“伸びる型”を特定</td><td>保存率・遷移率を見る</td></tr>
+    <tr><td><strong>Month 2</strong></td><td>連載継続＋LINE導線を稼働。面談発生を計測開始</td><td>面談が週単位で発生</td></tr>
+    <tr><td><strong>Month 3</strong></td><td>節目回（スクール・変化）で伸ばす</td><td>面談が定常化する土台</td></tr>
+  </table>
+
+  <h2><span class="n">14.</span> 法務・リスク管理</h2>
+  <p>薬機法・医療広告ガイドライン・障害福祉サービス広告に配慮。最初からルール化する。</p>
+  <div class="grid2">
+    <div class="card" style="background:var(--redBg); margin:0;"><p style="font-weight:600; margin:0 0 6px; color:var(--red);">NG</p><p class="mini" style="margin:0; color:var(--red);">「治る／必ず良くなる」断定／体験談を治療効果として見せる／エビデンスなし数字／「これに当てはまればうつ」の断定</p></div>
+    <div class="card" style="background:var(--tealBg); margin:0;"><p style="font-weight:600; margin:0 0 6px; color:var(--teal);">言い換え</p><p class="mini" style="margin:0; color:var(--teal);">治る→対処できる／うつです→受診の目安かも／数字→定性表現／ストーリーは「利用者の歩み」として</p></div>
+  </div>
+  <ul style="margin-top:12px;">
+    <li><strong>撮影・公開同意書：</strong>顔出し範囲を本人が選べる形（顔／モザイク／後ろ姿／声のみ）。医療情報（診断名・服薬）は本人許可分のみ</li>
+    <li><strong>撤回権を最初に約束：</strong>「嫌になったらいつでも消せる」＝信頼の土台。他者の映り込みは本人にも同意。再現映像は「イメージ」表記</li>
+    <li><strong>コメント方針：</strong>医療相談には答えず受診を促す定型／自傷示唆・アンチ対応・NGワード一覧を開始前に整備</li>
+    <li><strong>連載リスク：</strong>主役の体調が生命線。卒業生の振り返りを併走、または主役2人体制でリスク分散</li>
+    <li><strong>運用共通：</strong>数字・断言の前に裏取り／文字数は実測／過去テーマと被り照合／AI口調NG</li>
+  </ul>
+
+  <h2><span class="n">15.</span> 美術・ロケ設定（部屋の作り込み）</h2>
+  <p>顔出しなし＝<strong>部屋そのものが主役</strong>。光と小物で感情を語る。リアルさ（作り物っぽくない）が最優先で、“お金かかってる感”はNG。ベースはレンタルスペース（例：13㎡の個室・フローリング・ベランダ付き）を想定。</p>
+  <h3>あかりの部屋＝「転落型」（昔の名残 × 今の荒れ）</h3>
+  <ul>
+    <li><strong>昔の名残 × 今の荒れ：</strong>元気だった頃に買った立派なTV・ソファ（普通に働く20代が買える範囲）を、ほこり・服の山で“放置”状態に。立派さより<strong>「立派なのに荒れてる落差」</strong>が刺さる</li>
+    <li><strong>光で回復を見せる：</strong>序盤＝カーテン閉め・青白く暗い → 回復が進むほどベランダの自然光・暖色を増やす。顔を映さず「良くなってる」が伝わる</li>
+    <li><strong>散らかり＝回復のバロメーター：</strong>Phase3（どん底）で最も散らかり、Phase6〜7で少しずつ整う</li>
+    <li><strong>持ち込み小物：</strong>薬シート・お薬手帳／飲みかけペットボトル／安物ノートPC／<strong>壁に推しグッズ</strong>／リボ明細・残高の少ない通帳（お金のリアル）</li>
+  </ul>
+  <p class="mini">同じ部屋で撮り続ける（初回配置を写真で記録して再現）＝連載の“ホーム感”。壁の貼り物は剥がせる方式でレンタルを傷つけない。「最初から困窮タイプ」の部屋は別キャラ・第2ロケット用に取っておく。</p>
+
+  <h2><span class="n">16.</span> 付録：1話サンプル台本（二段リビール・縦動画 約38秒）</h2>
+  <p style="font-weight:600; margin-bottom:8px;">1話「去年までバリバリ働いてた私が、今、無職です」</p>
+  <table>
+    <tr><th style="width:62px;">秒</th><th>映像（顔なし）</th><th>テロップ</th><th>ナレ（本人の声）</th></tr>
+    <tr><td>0:00–0:04</td><td>薄暗い部屋／ほこりをかぶった立派なTV／付箋だらけのPC</td><td>「去年までバリバリ働いてた私が、今、無職です」</td><td>27歳。適応障害とADHDになった、元OLです</td></tr>
+    <tr><td>0:04–0:08</td><td>診断書の一部（ぼかし）</td><td>「“ADHD”——生まれつきの特性でした」</td><td>2年くらい前から、“何かおかしい”とは思ってた</td></tr>
+    <tr><td>0:08–0:20</td><td>付箋の山／赤ペンだらけの書類／何個も鳴る目覚まし</td><td>「何度も同じミスをする」「頑張ってるのに、要領が悪い」「“やる気ある?”って、何度も言われた」</td><td>みんなが当たり前にできることが、私にはできなかった</td></tr>
+    <tr><td>0:20–0:30</td><td>栄養ドリンクの空き瓶／深夜のデスク／動けない足元</td><td>「“気合いでカバー”して、無理を続けた」「そして——朝、起きられなくなった」</td><td>電池が切れるみたいに、ある日、動けなくなった</td></tr>
+    <tr><td>0:30–0:38</td><td>窓に少しだけ光／診断書を置く手</td><td>「怠けじゃなかった。ずっと、人一倍、頑張ってた」「これは、もう一度“働ける”ようになるまでの記録」「#1」</td><td>同じ場所にいる人に、届きますように</td></tr>
+  </table>
+  <div class="card">
+    <p class="mini" style="margin:0 0 4px;">キャプション</p>
+    <p style="margin:0; font-size:13.5px; line-height:1.85;">25歳で、適応障害とADHDって診断されました。<br>2年くらい前から、なんか変だとは思ってた。同じミスを何回もして、要領も悪くて、やる気ある?って何度言われたか。みんなが普通にできることが、私はできない。<br><br>それでも気合いでごまかしてたら、ある朝、急に動けなくなった。<br>怠けじゃなかったんだと思う。たぶん、人より頑張ってた。<br><br>ここからもう一回働けるようになるまで、残していきます。<br>同じような人いたら、コメントで教えてください。</p>
+  </div>
+  <p class="mini"><strong>ハッシュタグ（リーチ用を先に／導線タグは1〜2個だけ）：</strong><br>#うつ #適応障害 #ADHD #メンタルケア #頑張り過ぎ #人生立て直し #無職 #休職中 #HSP #生きづらさ　／　#在宅ワーク #就労移行支援</p>
+
+  <h2><span class="n">17.</span> 投稿テーマ・バンク（第2ロケット／単発 約110本）</h2>
+  <p class="mini">連載の合間に撒く単発（毎日Threads＋週次カルーセル）。目的タグ　<span class="tag t-blue">集</span>=共感で集める　<span class="tag t-green">動</span>=面談へ動かす　<span class="tag t-purple">深</span>=深く刺す。※知識系（H・K）は投稿前にファクトチェック必須。各テーマ、作る時はテンション5種（落差／ループ／感情／問い／情景）を1個仕込む。</p>
+
+  <h3>A. 頑張りすぎ・限界のサイン <span class="tag t-blue">集</span></h3>
+  <ul>
+    <li>「疲れてるだけ」だと思ってた症状、実は限界のサインだった</li>
+    <li>頑張り屋さんほど、ある日ぷつんと切れる</li>
+    <li>「休みたい」が言えない人、危ないかも</li>
+    <li>完璧にやろうとして、逆に何もできなくなった</li>
+    <li>断れない性格が、自分を壊してた</li>
+    <li>人の機嫌をうかがいすぎて、疲れ果てた</li>
+    <li>「みんなも我慢してる」で、限界を見逃した</li>
+    <li>笑えてるのに、心は死んでた時期がある</li>
+    <li>気づけば、涙のスイッチが勝手に入るようになってた</li>
+  </ul>
+
+  <h3>B. ADHDあるある（健常者との違い） <span class="tag t-blue">集</span></h3>
+  <ul>
+    <li>何度も同じミスをして、「やる気ある?」と言われ続けた</li>
+    <li>忘れ物が多すぎて、自分を責めてた</li>
+    <li>部屋が片付けられないの、性格じゃなかった</li>
+    <li>気になることがあると、他が全部止まる</li>
+    <li>マルチタスクになると、頭が真っ白になる</li>
+    <li>なぜか、約束の時間に間に合わない</li>
+    <li>話を最後まで聞けなくて、失礼だと思われてた</li>
+    <li>頭の中が、いつも“タブ開きすぎ”状態</li>
+    <li>興味のないことは、どうしても手がつかない</li>
+    <li>「なんでできないの?」が、一番しんどい言葉だった</li>
+    <li>診断されて、性格じゃなく特性だったと知った</li>
+  </ul>
+
+  <h3>C. 電話・対人が苦手 <span class="tag t-blue">集</span></h3>
+  <ul>
+    <li>電話が鳴るだけで、心臓が止まりそうになる</li>
+    <li>折り返しが怖くて、ずっと放置してた</li>
+    <li>「ちょっといい?」が、この世で一番こわい言葉</li>
+    <li>雑談が続かなくて、職場で浮いてた</li>
+    <li>人の目が気になって、会社に行けなくなった</li>
+    <li>LINE、既読つけるのもこわい時がある</li>
+    <li>飲み会のあと、家で3時間ぐったりする</li>
+    <li>電話対応で叱られたのが、トラウマになってる</li>
+    <li>“人と関わらない仕事”を、本気で探してた</li>
+  </ul>
+
+  <h3>D. うつ・適応障害の症状（共感） <span class="tag t-blue">集</span></h3>
+  <ul>
+    <li>朝、布団から出られないのは、甘えじゃない</li>
+    <li>何をしても楽しくない、が何ヶ月も続いた</li>
+    <li>好きだったことが、全部どうでもよくなった</li>
+    <li>頭に霧がかかって、考えがまとまらない</li>
+    <li>眠れないのに、起きられない</li>
+    <li>お風呂に入るのが、エベレスト級に感じる</li>
+    <li>「死にたい」じゃなくて「消えたい」だった</li>
+    <li>理由もないのに、涙だけ出る日がある</li>
+    <li>体は元気なのに、心だけ動かない</li>
+  </ul>
+
+  <h3>E. 甘え論・偏見（厳選5） <span class="tag t-blue">集</span></h3>
+  <ul>
+    <li>うつは甘えじゃない。心のエネルギー切れ</li>
+    <li>頑張れないんじゃない。頑張りすぎた結果</li>
+    <li>「見た目は元気そう」が、一番しんどい</li>
+    <li>障害者雇用＝キャリア終了、は誤解だった</li>
+    <li>弱いから病んだんじゃない。真面目だったから</li>
+  </ul>
+
+  <h3>F. 診断・受診（気づき→行動） <span class="tag t-green">動</span></h3>
+  <ul>
+    <li>「私なんかが病院行っていいの?」で2週間迷った</li>
+    <li>精神科って、実際どんな所か話す</li>
+    <li>問診票に、正直に書けなかった</li>
+    <li>診断名がついて、やっと“対処していい”と思えた</li>
+    <li>何科に行けばいいか、分からなかった</li>
+    <li>診断されるのが怖かった。でも、ラクになった</li>
+    <li>「もっと早く行けばよかった」と、今は思う</li>
+    <li>受診をためらってる人に、伝えたいこと</li>
+  </ul>
+
+  <h3>G. 回復・セルフケア（HOW） <span class="tag t-purple">深</span></h3>
+  <ul>
+    <li>回復期は「治りかけ」が一番しんどい</li>
+    <li>「朝起きる」を取り戻すために、やったこと</li>
+    <li>良くなったり悪くなったり、が普通だった</li>
+    <li>“何もしない”を自分に許すのが、一番難しい</li>
+    <li>生活記録をつけたら、自分の波が見えた</li>
+    <li>完全に治すより、「付き合う」に切り替えた</li>
+    <li>焦って動くと、また落ちる。学んだこと</li>
+    <li>小さな「できた」を数える練習</li>
+    <li>自分の“取扱説明書”を作ってみた</li>
+  </ul>
+
+  <h3>H. お金・無職・制度（知識） <span class="tag t-blue">集</span></h3>
+  <ul>
+    <li>休職中のお金、傷病手当金って知ってる?</li>
+    <li>貯金が減っていく恐怖と、向き合った</li>
+    <li>働けない間に使える制度、調べてみた</li>
+    <li>「無職」って言葉が、自分に刺さる</li>
+    <li>焦って就活して、また潰れかけた話</li>
+    <li>お金がないのに、推しにだけは使ってしまう</li>
+    <li>障害者手帳、とるか3日悩んだ</li>
+    <li>空白期間、履歴書にどう書くか問題</li>
+    <li>ブランクがあっても、雇ってくれる場所はある</li>
+  </ul>
+
+  <h3>I. 人生立て直し・在宅・IT（希望） <span class="tag t-green">動</span></h3>
+  <ul>
+    <li>会社に行かなくても働ける、を知った日</li>
+    <li>人と関わらず、黙々とできる仕事を探してた</li>
+    <li>未経験からITって、本当にいけるの?</li>
+    <li>ADHDの“過集中”が、プログラミングで武器になった</li>
+    <li>繊細さんが消耗せずに働ける環境の作り方</li>
+    <li>在宅ワークのいいところ、しんどいところ</li>
+    <li>はじめて自分でコードが動いた日の話</li>
+    <li>“もう一回働く”って決めるまで、時間がかかった</li>
+    <li>同じ境遇の仲間ができて、変わったこと</li>
+    <li>無職だった私に、内定が出た</li>
+  </ul>
+
+  <h3>J. あかり視点の家族 <span class="tag t-coral">拡散</span></h3>
+  <ul>
+    <li>親に「甘え」と言われた日のこと</li>
+    <li>一番わかってほしい人に、わかってもらえない</li>
+    <li>家族に、本当はこう言ってほしかった</li>
+  </ul>
+
+  <h3>K. 正しい知識（違いの整理・検索流入） <span class="tag t-blue">集</span></h3>
+  <ul>
+    <li>適応障害とうつ病、何が違うの?</li>
+    <li>HSPと発達障害は、別ものです</li>
+    <li>ADHDとASD、ざっくりの違い</li>
+    <li>発達障害の「二次障害」って知ってる?</li>
+    <li>大人になってから発達障害と分かる理由</li>
+    <li>「やる気が出ない」と「うつ」の境界線</li>
+    <li>適応障害は、環境が変われば良くなりやすい</li>
+    <li>うつの回復に「休養」が必要なわけ</li>
+    <li>“グレーゾーン”って、どういうこと?</li>
+  </ul>
+
+  <h3>L. 自己受容・自分を許す（＝本当の欲求） <span class="tag t-purple">深</span></h3>
+  <ul>
+    <li>「ちゃんとしなきゃ」を、手放せた日</li>
+    <li>自分を責めるのを、やめる練習を始めた</li>
+    <li>「できない自分」を、はじめて許せた気がする</li>
+    <li>“普通”に戻らなくていい、と思えたら軽くなった</li>
+    <li>誰に認められなくても、私は私を認める</li>
+    <li>夜、やっと安心して眠れた日のこと</li>
+  </ul>
+
+  <h3>M. 同世代比較の焦り（27歳・元OLのリアル） <span class="tag t-blue">集</span></h3>
+  <ul>
+    <li>同期が出世していく中、私は無職になった</li>
+    <li>SNSで同期のキラキラを見て、消えたくなる</li>
+    <li>友達の結婚報告が、素直に喜べなかった</li>
+    <li>「27にもなって何してるの」が頭から離れない</li>
+    <li>みんな前に進んでるのに、私だけ止まってる</li>
+    <li>同窓会に、行けなかった</li>
+  </ul>
+
+  <h3>N. 相談・背中押し（→面談へ） <span class="tag t-green">動</span></h3>
+  <ul>
+    <li>一人で抱え込まないで、が本当に効いた</li>
+    <li>「相談するほどじゃない」が、一番危ない</li>
+    <li>プロに頼って、はじめてラクになった</li>
+    <li>就労移行、見学だけでも行ってよかった</li>
+    <li>“誰かを頼る”のが、回復の一番の近道だった</li>
+  </ul>
+
+  <h3>O. 生活のリアル <span class="tag t-purple">深</span></h3>
+  <ul>
+    <li>推しがいたから、なんとか生きてた</li>
+    <li>一人暮らしで病むと、誰も気づいてくれない</li>
+    <li>コンビニすら、行けない日があった</li>
+  </ul>
+
+  <hr class="divider">
+  <p class="mini" style="text-align:center;">就労支援SNS運用 設計書【完全版】 ／ 競合分析・差別化は次フェーズで追補</p>
+
+</div>
+</body>
+</html>
